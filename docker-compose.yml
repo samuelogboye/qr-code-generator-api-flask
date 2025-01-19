@@ -9,9 +9,41 @@ services:
       - "8000:8000"
     environment:
       - DEBUG=1
+    networks:
+            - qr_generator
     volumes:
       - .:/app
     command: >
       gunicorn qr.wsgi:application
       --bind 0.0.0.0:8000
       --workers=4
+  
+  pgsql:
+        image: 'postgres:15'
+        ports:
+            - '${FORWARD_DB_PORT:-5432}:5432'
+        environment:
+            PGPASSWORD: '${DB_PASSWORD:-secret}'
+            POSTGRES_DB: '${DB_DATABASE}'
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+        volumes:
+            - 'db_data:/var/lib/postgresql/data'
+        networks:
+            - qr_generator
+        healthcheck:
+            test:
+                - CMD
+                - pg_isready
+                - '-q'
+                - '-d'
+                - '${DB_DATABASE}'
+                - '-U'
+                - '${DB_USERNAME}'
+            retries: 3
+            timeout: 5s
+volumes:
+  db_data:
+
+networks:
+  qr_generator:
