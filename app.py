@@ -1,16 +1,24 @@
+import os
 from flask import Flask, request, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
 import qrcode
 import io
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
 
 # Database Configurations
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://username:password@localhost/qr_code_db'
+db_url = (
+    f"postgresql://{os.getenv('DB_USERNAME')}:{os.getenv('DB_PASSWORD')}"
+    f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_DATABASE')}"
+)
+print("db_url", db_url)
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
+app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
@@ -118,5 +126,6 @@ def delete_qr():
     return jsonify({'message': 'QR code deleted successfully'}), 200
 
 if __name__ == '__main__':
-    db.create_all()
+    with app.app_context():
+        db.create_all()  # Ensure database tables are created within the app context
     app.run(debug=True)
