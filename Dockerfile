@@ -26,3 +26,4 @@ EXPOSE 8000
 
 # Start Gunicorn server
 # CMD ["gunicorn", "qr.wsgi:application", "--bind", "0.0.0.0:8000", "--workers=4"]
+CMD ["python", "app.py"]
