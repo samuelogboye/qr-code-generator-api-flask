@@ -1,49 +1,42 @@
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: qr_backend
-    restart: always
+    build: .
     ports:
-      - "8000:8000"
+      - "5000:5000"
     environment:
-      - DEBUG=1
-    networks:
-            - qr_generator
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    depends_on:
+      - db
     volumes:
       - .:/app
-    # command: >
-    #   # gunicorn qr.wsgi:application
-    #   # --bind 0.0.0.0:8000
-    #   # --workers=4
-  
-  pgsql:
-        image: 'postgres:15'
-        ports:
-            - '${FORWARD_DB_PORT:-5432}:5432'
-        environment:
-            PGPASSWORD: '${DB_PASSWORD:-secret}'
-            POSTGRES_DB: '${DB_DATABASE}'
-            POSTGRES_USER: '${DB_USERNAME}'
-            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
-        volumes:
-            - 'db_data:/var/lib/postgresql/data'
-        networks:
-            - qr_generator
-        healthcheck:
-            test:
-                - CMD
-                - pg_isready
-                - '-q'
-                - '-d'
-                - '${DB_DATABASE}'
-                - '-U'
-                - '${DB_USERNAME}'
-            retries: 3
-            timeout: 5s
+    networks:
+      - qr_network
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    ports:
+      - "5432:5432"
+    networks:
+      - qr_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
-  db_data:
+  postgres_data:
 
 networks:
-  qr_generator:
+  qr_network:
+    driver: bridge
