@@ -3,6 +3,7 @@ from typing import Optional
 from flask import Blueprint, request, jsonify, send_file
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import text
 import io
 from app import db
 from app.models import User, QRCode
@@ -170,7 +171,7 @@ def list_qr_codes():
 @bp.route('/test-db', methods=['GET'])
 def test_db():
     try:
-        db.session.execute('SELECT 1')
+        db.session.execute(text('SELECT 1'))
         return jsonify({'message': 'Database connection successful'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
