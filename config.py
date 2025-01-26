@@ -8,7 +8,7 @@ class Config:
         # Construct the URL if DATABASE_URL is not set
         SQLALCHEMY_DATABASE_URI = (
             f"postgresql://{os.getenv('DB_USERNAME')}:{os.getenv('DB_PASSWORD')}"
-            f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_DATABASE')}"
+            f"@db:{os.getenv('DB_PORT')}/{os.getenv('DB_DATABASE')}"
         )
     print(f"Database URL: {SQLALCHEMY_DATABASE_URI}")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
