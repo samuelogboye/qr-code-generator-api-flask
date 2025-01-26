@@ -19,6 +19,6 @@ def handle_405(e):
         'allowed_methods': e.valid_methods,
         'status_code': 405
     }), 405
-
+print(Config.SQLALCHEMY_DATABASE_URI)
 if __name__ == '__main__':
     app.run()
