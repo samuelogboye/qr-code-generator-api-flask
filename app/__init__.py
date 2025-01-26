@@ -1,3 +1,4 @@
+import time
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
@@ -14,16 +15,22 @@ def create_app(config_class=Config):
     db.init_app(app)
     jwt.init_app(app)
 
-    # Verify database connection
+    # Wait for database to be ready
     with app.app_context():
-        try:
-            # Try to create a connection to the database
-            db.session.execute(text('SELECT 1'))
-            print("Database connection successful!")
-        except Exception as e:
-            print(f"Database connection failed! Error: {e}")
-            # You might want to exit here in production
-            # import sys; sys.exit(1)
+        retry_count = 0
+        while retry_count < 5:
+            try:
+                # Try to create a connection to the database
+                db.session.execute(text('SELECT 1'))
+                print("Database connection successful!")
+                break
+            except Exception as e:
+                print(f"Database connection failed! Error: {e}")
+                retry_count += 1
+                time.sleep(5)
+                if retry_count == 5:
+                    print("Could not connect to database after 5 attempts")
+                    raise
 
     from app.routes import bp as routes_bp
     app.register_blueprint(routes_bp, url_prefix='/api/v1')
