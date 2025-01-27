@@ -3,7 +3,7 @@ from datetime import timedelta
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = "postgresql://postgres:qr_password@db:5432/qr_codes" #os.environ.get('DATABASE_URL')
     if not SQLALCHEMY_DATABASE_URI:
         # Construct the URL if DATABASE_URL is not set
         SQLALCHEMY_DATABASE_URI = (
