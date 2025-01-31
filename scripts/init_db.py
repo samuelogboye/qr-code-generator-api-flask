@@ -19,7 +19,6 @@ def wait_for_db():
             return True
         except psycopg2.OperationalError:
             print(f"Waiting for database... {max_tries} tries left")
-            print(f"Error: {e}")
             max_tries -= 1
             time.sleep(1)
     return False
