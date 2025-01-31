@@ -175,11 +175,3 @@ def test_db():
         return jsonify({'message': 'Database connection successful'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-# if __name__ == '__main__':
-#     app.run(debug=Config.DEBUG)
-
-# if __name__ == '__main__':
-#     with app.app_context():
-#         db.create_all()  # Ensure database tables are created within the app context
-#     app.run(debug=True)
